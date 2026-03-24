@@ -216,6 +216,70 @@ def apply_sse_trailing_slash_patch() -> None:
     fastmcp_http.create_sse_app = _patched_create_sse_app
 
 
+def apply_streamable_http_health_patch() -> None:
+    """
+    Patch FastMCP's `create_streamable_http_app` to inject a /health endpoint.
+
+    FastMCP's streamable-http transport creates its own Starlette app internally,
+    which means health endpoints registered on mcp.fastapi_app (which is None at
+    module load time) are never served. This patch injects a lightweight /health
+    route directly into the Starlette app that FastMCP creates.
+    """
+    if (
+        getattr(fastmcp_http.create_streamable_http_app, "__name__", "")
+        == "_patched_create_streamable_http_app"
+    ):
+        return
+
+    original_create = fastmcp_http.create_streamable_http_app
+    patch_logger = logging.getLogger("maverick_mcp.server")
+
+    def _patched_create_streamable_http_app(
+        server: Any,
+        streamable_http_path: str,
+        event_store: Any | None = None,
+        retry_interval: int | None = None,
+        auth: Any | None = None,
+        json_response: bool = False,
+        stateless_http: bool = False,
+        debug: bool = False,
+        routes: list[BaseRoute] | None = None,
+        middleware: list[Middleware] | None = None,
+    ) -> Any:
+        """Create streamable-http app with injected /health endpoint."""
+        from starlette.requests import Request
+        from starlette.responses import JSONResponse
+
+        async def health_endpoint(request: Request) -> JSONResponse:
+            """Lightweight health check for Railway/Docker/load balancers."""
+            return JSONResponse(
+                {"status": "healthy", "service": "maverick-mcp"},
+                status_code=200,
+            )
+
+        # Prepend /health route
+        health_route = Route("/health", endpoint=health_endpoint, methods=["GET"])
+        extra_routes = [health_route] + (routes or [])
+
+        app = original_create(
+            server=server,
+            streamable_http_path=streamable_http_path,
+            event_store=event_store,
+            retry_interval=retry_interval,
+            auth=auth,
+            json_response=json_response,
+            stateless_http=stateless_http,
+            debug=debug,
+            routes=extra_routes,
+            middleware=middleware,
+        )
+
+        patch_logger.info("Health endpoint injected at /health for streamable-http transport")
+        return app
+
+    fastmcp_http.create_streamable_http_app = _patched_create_streamable_http_app
+
+
 class FastMCPProtocol(Protocol):
     """Protocol describing the FastMCP interface we rely upon."""
 
@@ -1687,6 +1751,7 @@ if __name__ == "__main__":
                 log_level=settings.api.log_level.upper(),
             )
         elif args.transport == "streamable-http":
+            apply_streamable_http_health_patch()
             logger.info(
                 f"Starting {settings.app_name} server with streamable-http transport on http://{args.host}:{args.port}"
             )
