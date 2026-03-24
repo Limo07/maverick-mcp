@@ -28,9 +28,16 @@ from maverick_mcp.utils.orchestration_logging import (
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
-# Initialize LLM and agent
-llm = get_llm()
+# Initialize LLM and agent (lazy - initialized on first use to avoid slow startup)
+_llm = None
 research_agent = None
+
+
+def _get_llm():
+    global _llm
+    if _llm is None:
+        _llm = get_llm()
+    return _llm
 
 
 # Request models for tool registration
@@ -120,7 +127,7 @@ def get_research_agent(
     # Use singleton for standard requests
     if research_agent is None:
         research_agent = DeepResearchAgent(
-            llm=llm,
+            llm=_get_llm(),
             persona="moderate",
             max_sources=25,  # Reduced for faster execution
             research_depth="standard",  # Reduced depth for speed
@@ -531,7 +538,7 @@ async def comprehensive_research(
 
         # Log the timeout calculation result explicitly
         logger.info(
-            f"🔧 TIMEOUT_CONFIGURATION: scope='{research_scope}' → timeout={adaptive_timeout}s (was requesting {max_sources} sources, optimized to {optimized_sources})"
+            f"[TOOL] TIMEOUT_CONFIGURATION: scope='{research_scope}' → timeout={adaptive_timeout}s (was requesting {max_sources} sources, optimized to {optimized_sources})"
         )
 
         # Step 2: Log optimization setup (components initialized in underlying research system)

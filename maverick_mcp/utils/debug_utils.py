@@ -576,7 +576,7 @@ def print_debug_summary():
     print("=" * 80)
 
     # Performance metrics
-    print("\n📊 PERFORMANCE METRICS")
+    print("\n[METRICS] PERFORMANCE METRICS")
     print("-" * 40)
     try:
         manager = get_logger_manager()
@@ -627,7 +627,7 @@ def enable_debug_mode():
     import os
 
     os.environ["MAVERICK_DEBUG"] = "true"
-    print("🐛 Debug mode enabled")
+    print("[DEBUG] Debug mode enabled")
     print("   - Verbose logging activated")
     print("   - Request/response logging enabled")
     print("   - Performance profiling enabled")
@@ -640,4 +640,4 @@ def disable_debug_mode():
 
     if "MAVERICK_DEBUG" in os.environ:
         del os.environ["MAVERICK_DEBUG"]
-    print("🐛 Debug mode disabled")
+    print("[DEBUG] Debug mode disabled")

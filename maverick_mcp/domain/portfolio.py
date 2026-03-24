@@ -406,7 +406,7 @@ class Portfolio:
         """
         Remove all positions from the portfolio.
 
-        ⚠️ WARNING: This operation cannot be undone.
+        [WARN] WARNING: This operation cannot be undone.
         """
         self.positions.clear()
         self.updated_at = datetime.now(UTC)

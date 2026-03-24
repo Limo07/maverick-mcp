@@ -196,6 +196,8 @@ def setup_structured_logging(
 
     # Console handler - use stderr for stdio transport to avoid interfering with JSON-RPC
     console_handler = logging.StreamHandler(sys.stderr if use_stderr else sys.stdout)
+    if hasattr(console_handler.stream, "reconfigure"):
+        console_handler.stream.reconfigure(encoding="utf-8", errors="replace")
 
     if log_format == "json":
         console_handler.setFormatter(StructuredFormatter())

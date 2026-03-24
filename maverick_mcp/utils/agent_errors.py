@@ -176,7 +176,7 @@ def agent_friendly_errors[T](
 
                     if fix_info:
                         logger.info(
-                            f"💡 Fix suggestion: {fix_info['fix']}",
+                            f"[TIP] Fix suggestion: {fix_info['fix']}",
                             extra={"example": fix_info.get("example", "")},
                         )
 
@@ -184,7 +184,7 @@ def agent_friendly_errors[T](
                 if fix_info and provide_fix:
                     enhanced_msg = (
                         f"{error_msg}\n\n"
-                        f"💡 Fix: {fix_info['fix']}\n"
+                        f"[TIP] Fix: {fix_info['fix']}\n"
                         f"Example: {fix_info.get('example', '')}"
                     )
                     # Replace the error message
@@ -228,14 +228,14 @@ def agent_friendly_errors[T](
 
                         if fix_info:
                             logger.info(
-                                f"💡 Fix suggestion: {fix_info['fix']}",
+                                f"[TIP] Fix suggestion: {fix_info['fix']}",
                                 extra={"example": fix_info.get("example", "")},
                             )
 
                     if fix_info and provide_fix:
                         enhanced_msg = (
                             f"{error_msg}\n\n"
-                            f"💡 Fix: {fix_info['fix']}\n"
+                            f"[TIP] Fix: {fix_info['fix']}\n"
                             f"Example: {fix_info.get('example', '')}"
                         )
                         e.args = (enhanced_msg,) + e.args[1:]

@@ -121,17 +121,17 @@ class MCPLoggingMiddleware(Middleware if MIDDLEWARE_AVAILABLE else object):
         resource_uri = getattr(context.message, "uri", "unknown_resource")
         start_time = time.time()
 
-        print(f"🔗 RESOURCE ACCESS: {resource_uri}")
+        print(f"[LINK] RESOURCE ACCESS: {resource_uri}")
 
         try:
             result = await call_next(context)
             execution_time = time.time() - start_time
-            print(f"✅ RESOURCE SUCCESS: {resource_uri} ({execution_time:.2f}s)")
+            print(f"[OK] RESOURCE SUCCESS: {resource_uri} ({execution_time:.2f}s)")
             return result
         except Exception as e:
             execution_time = time.time() - start_time
             print(
-                f"❌ RESOURCE ERROR: {resource_uri} ({execution_time:.2f}s) - {type(e).__name__}: {str(e)}"
+                f"[ERROR] RESOURCE ERROR: {resource_uri} ({execution_time:.2f}s) - {type(e).__name__}: {str(e)}"
             )
             raise
 
@@ -159,7 +159,7 @@ class MCPLoggingMiddleware(Middleware if MIDDLEWARE_AVAILABLE else object):
         if arguments:
             args_str = str(arguments)
             args_preview = f" with {args_str[:50]}{'...' if len(args_str) > 50 else ''}"
-        print(f"🔧 TOOL CALL: {tool_name}{args_preview} [{request_id[:8]}]")
+        print(f"[TOOL] TOOL CALL: {tool_name}{args_preview} [{request_id[:8]}]")
 
     def _log_tool_call_success(
         self, request_id: str, tool_name: str, result: Any, execution_time: float
@@ -191,7 +191,7 @@ class MCPLoggingMiddleware(Middleware if MIDDLEWARE_AVAILABLE else object):
 
         # Console output with color coding based on execution time
         status_icon = (
-            "🟢" if execution_time < 5.0 else "🟡" if execution_time < 15.0 else "🟠"
+            "[OK]" if execution_time < 5.0 else "[SLOW]" if execution_time < 15.0 else "[VERY_SLOW]"
         )
         print(
             f"{status_icon} TOOL SUCCESS: {tool_name} [{request_id[:8]}] {execution_time:.2f}s"
@@ -214,7 +214,7 @@ class MCPLoggingMiddleware(Middleware if MIDDLEWARE_AVAILABLE else object):
 
         self.logger.error("TOOL_CALL_TIMEOUT", extra=log_data)
         print(
-            f"⏰ TOOL TIMEOUT: {tool_name} [{request_id[:8]}] {execution_time:.2f}s (exceeded 25s limit)"
+            f"[TIMEOUT] TOOL TIMEOUT: {tool_name} [{request_id[:8]}] {execution_time:.2f}s (exceeded 25s limit)"
         )
 
     def _log_tool_call_error(
@@ -249,7 +249,7 @@ class MCPLoggingMiddleware(Middleware if MIDDLEWARE_AVAILABLE else object):
 
         # Console output with error details
         print(
-            f"❌ TOOL ERROR: {tool_name} [{request_id[:8]}] {execution_time:.2f}s - {type(error).__name__}: {str(error)}"
+            f"[ERROR] TOOL ERROR: {tool_name} [{request_id[:8]}] {execution_time:.2f}s - {type(error).__name__}: {str(error)}"
         )
 
 
@@ -287,7 +287,7 @@ class ToolExecutionLogger:
         )
 
         # Console progress indicator
-        print(f"  📊 {self.tool_name} -> {step_name} ({step_duration:.2f}s)")
+        print(f"  [METRICS] {self.tool_name} -> {step_name} ({step_duration:.2f}s)")
 
     def error(self, step_name: str, error: Exception, message: str | None = None):
         """Log an error in tool execution."""
@@ -312,7 +312,7 @@ class ToolExecutionLogger:
 
         # Console error indicator
         print(
-            f"  ❌ {self.tool_name} -> {step_name} ERROR: {type(error).__name__}: {str(error)}"
+            f"  [ERROR] {self.tool_name} -> {step_name} ERROR: {type(error).__name__}: {str(error)}"
         )
 
     def complete(self, result_summary: str | None = None):
@@ -333,7 +333,7 @@ class ToolExecutionLogger:
         )
 
         # Console completion
-        print(f"  ✅ {self.tool_name} completed ({total_duration:.2f}s)")
+        print(f"  [OK] {self.tool_name} completed ({total_duration:.2f}s)")
 
 
 def add_mcp_logging_middleware(
@@ -353,7 +353,7 @@ def add_mcp_logging_middleware(
     """
     if not MIDDLEWARE_AVAILABLE:
         logger.warning("FastMCP middleware not available - requires FastMCP 2.9+")
-        print("⚠️  FastMCP middleware not available - tool logging will be limited")
+        print("[WARN] FastMCP middleware not available - tool logging will be limited")
         return
 
     middleware = MCPLoggingMiddleware(
@@ -366,14 +366,14 @@ def add_mcp_logging_middleware(
     try:
         if hasattr(server, "add_middleware"):
             server.add_middleware(middleware)
-            logger.info("✅ FastMCP 2.0 middleware registered successfully")
+            logger.info("[OK] FastMCP 2.0 middleware registered successfully")
         elif hasattr(server, "middleware"):
             # Fallback for different API structure
             if isinstance(server.middleware, list):
                 server.middleware.append(middleware)
             else:
                 server.middleware = [middleware]
-            logger.info("✅ FastMCP middleware registered via fallback method")
+            logger.info("[OK] FastMCP middleware registered via fallback method")
         else:
             # Manual middleware application as decorator
             logger.warning("Using decorator-style middleware registration")
@@ -381,7 +381,7 @@ def add_mcp_logging_middleware(
 
     except Exception as e:
         logger.error(f"Failed to register FastMCP middleware: {e}")
-        print(f"⚠️  Middleware registration failed: {e}")
+        print(f"[WARN] Middleware registration failed: {e}")
 
     logger.info(
         "MCP logging middleware setup completed",
@@ -405,17 +405,17 @@ def _apply_middleware_as_decorators(server: FastMCP, middleware: MCPLoggingMiddl
             async def wrapper(*func_args, **func_kwargs):
                 # Simple console logging as fallback
                 func_name = getattr(func, "__name__", "unknown_tool")
-                print(f"🔧 TOOL CALL: {func_name}")
+                print(f"[TOOL] TOOL CALL: {func_name}")
                 start_time = time.time()
                 try:
                     result = await func(*func_args, **func_kwargs)
                     execution_time = time.time() - start_time
-                    print(f"🟢 TOOL SUCCESS: {func_name} ({execution_time:.2f}s)")
+                    print(f"[OK] TOOL SUCCESS: {func_name} ({execution_time:.2f}s)")
                     return result
                 except Exception as e:
                     execution_time = time.time() - start_time
                     print(
-                        f"❌ TOOL ERROR: {func_name} ({execution_time:.2f}s) - {type(e).__name__}: {str(e)}"
+                        f"[ERROR] TOOL ERROR: {func_name} ({execution_time:.2f}s) - {type(e).__name__}: {str(e)}"
                     )
                     raise
 

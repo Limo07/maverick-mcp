@@ -76,7 +76,7 @@ class LoggingInitializer:
         # Validate settings
         warnings = validate_logging_settings(self._settings)
         if warnings:
-            print("⚠️  Logging configuration warnings:")
+            print("[WARN] Logging configuration warnings:")
             for warning in warnings:
                 print(f"   - {warning}")
 
@@ -213,41 +213,41 @@ class LoggingInitializer:
         print(f"Log Level: {self._settings.log_level}")
         print(f"Log Format: {self._settings.log_format}")
         print(
-            f"Debug Mode: {'✅ Enabled' if self._settings.debug_enabled else '❌ Disabled'}"
+            f"Debug Mode: {'[OK] Enabled' if self._settings.debug_enabled else '[OFF] Disabled'}"
         )
         print(
-            f"Performance Monitoring: {'✅ Enabled' if self._settings.enable_performance_logging else '❌ Disabled'}"
+            f"Performance Monitoring: {'[OK] Enabled' if self._settings.enable_performance_logging else '[OFF] Disabled'}"
         )
         print(
-            f"File Logging: {'✅ Enabled' if self._settings.enable_file_logging else '❌ Disabled'}"
+            f"File Logging: {'[OK] Enabled' if self._settings.enable_file_logging else '[OFF] Disabled'}"
         )
 
         if self._settings.enable_file_logging:
             print(f"Log File: {self._settings.log_file_path}")
             print(
-                f"Log Rotation: {'✅ Enabled' if self._settings.enable_log_rotation else '❌ Disabled'}"
+                f"Log Rotation: {'[OK] Enabled' if self._settings.enable_log_rotation else '[OFF] Disabled'}"
             )
 
         print(
-            f"Async Logging: {'✅ Enabled' if self._settings.enable_async_logging else '❌ Disabled'}"
+            f"Async Logging: {'[OK] Enabled' if self._settings.enable_async_logging else '[OFF] Disabled'}"
         )
         print(
-            f"Resource Tracking: {'✅ Enabled' if self._settings.enable_resource_tracking else '❌ Disabled'}"
+            f"Resource Tracking: {'[OK] Enabled' if self._settings.enable_resource_tracking else '[OFF] Disabled'}"
         )
 
         if self._settings.debug_enabled:
-            print("\n🐛 DEBUG MODE FEATURES:")
+            print("\n[DEBUG] DEBUG MODE FEATURES:")
             print(
-                f"   - Request/Response Logging: {'✅' if self._settings.log_request_response else '❌'}"
+                f"   - Request/Response Logging: {'[OK]' if self._settings.log_request_response else '[OFF]'}"
             )
             print(f"   - Verbose Modules: {len(self._settings.get_debug_modules())}")
             print(f"   - Max Payload Size: {self._settings.max_payload_length} chars")
 
         if self._settings.enable_performance_logging:
-            print("\n📊 PERFORMANCE MONITORING:")
+            print("\n[METRICS] PERFORMANCE MONITORING:")
             print(f"   - Threshold: {self._settings.performance_log_threshold_ms}ms")
             print(
-                f"   - Business Metrics: {'✅' if self._settings.enable_business_metrics else '❌'}"
+                f"   - Business Metrics: {'[OK]' if self._settings.enable_business_metrics else '[OFF]'}"
             )
 
         print("\n" + "=" * 80 + "\n")
@@ -266,14 +266,14 @@ class LoggingInitializer:
             self._settings.debug_enabled = True
             enable_debug_mode()
             self._setup_debug_logging()
-            print("🐛 Debug mode enabled at runtime")
+            print("[DEBUG] Debug mode enabled at runtime")
 
     def disable_debug_mode_runtime(self):
         """Disable debug mode at runtime."""
         if self._settings:
             self._settings.debug_enabled = False
             disable_debug_mode()
-            print("🐛 Debug mode disabled at runtime")
+            print("[DEBUG] Debug mode disabled at runtime")
 
     def print_debug_summary_if_enabled(self):
         """Print debug summary if debug mode is enabled."""
@@ -294,7 +294,7 @@ class LoggingInitializer:
         # Update all loggers
         logging.getLogger().setLevel(getattr(logging, new_level.upper()))
 
-        print(f"📊 Log level changed to: {new_level.upper()}")
+        print(f"[METRICS] Log level changed to: {new_level.upper()}")
 
     def get_performance_summary(self) -> dict[str, Any]:
         """Get comprehensive performance summary."""
@@ -312,7 +312,7 @@ class LoggingInitializer:
                     handler.close()
 
         self._initialized = False
-        print("🧹 Logging system cleaned up")
+        print("[CLEANUP] Logging system cleaned up")
 
 
 # Global initializer instance

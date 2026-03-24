@@ -487,7 +487,7 @@ class ParallelLLMProcessor:
         )
 
         self.orchestration_logger.info(
-            "🔄 PARALLEL_ANALYSIS_START",
+            "[PARALLEL] PARALLEL_ANALYSIS_START",
             total_sources=len(sources),
             batch_count=len(batches),
         )
@@ -529,7 +529,7 @@ class ParallelLLMProcessor:
                     batch_results[batch_id] = e
         except TimeoutError:
             self.orchestration_logger.warning(
-                "⏰ PARALLEL_ANALYSIS_TIMEOUT", timeout=time_budget_seconds
+                "[TIMEOUT] PARALLEL_ANALYSIS_TIMEOUT", timeout=time_budget_seconds
             )
             return self._create_fallback_results(sources)
 
@@ -539,7 +539,7 @@ class ParallelLLMProcessor:
         for i, batch_result in enumerate(batch_results):
             if isinstance(batch_result, Exception):
                 self.orchestration_logger.warning(
-                    "⚠️ BATCH_FAILED", batch_id=i, error=str(batch_result)
+                    "[WARN] BATCH_FAILED", batch_id=i, error=str(batch_result)
                 )
                 # Add fallback results for failed batch
                 final_results.extend(self._create_fallback_results(batches[i]))
@@ -548,7 +548,7 @@ class ParallelLLMProcessor:
                 successful_batches += 1
 
         self.orchestration_logger.info(
-            "✅ PARALLEL_ANALYSIS_COMPLETE",
+            "[OK] PARALLEL_ANALYSIS_COMPLETE",
             successful_batches=successful_batches,
             results_count=len(final_results),
         )
@@ -622,7 +622,7 @@ class ParallelLLMProcessor:
                 )
 
                 self.orchestration_logger.debug(
-                    "✨ BATCH_SUCCESS",
+                    "[NEW] BATCH_SUCCESS",
                     batch_id=batch_id,
                     duration=f"{execution_time:.2f}s",
                 )
@@ -631,14 +631,14 @@ class ParallelLLMProcessor:
 
             except TimeoutError:
                 self.orchestration_logger.warning(
-                    "⏰ BATCH_TIMEOUT",
+                    "[TIMEOUT] BATCH_TIMEOUT",
                     batch_id=batch_id,
                     timeout=model_config.timeout_seconds,
                 )
                 return self._create_fallback_results(batch)
             except Exception as e:
                 self.orchestration_logger.error(
-                    "💥 BATCH_ERROR", batch_id=batch_id, error=str(e)
+                    "[CRASH] BATCH_ERROR", batch_id=batch_id, error=str(e)
                 )
                 return self._create_fallback_results(batch)
             finally:

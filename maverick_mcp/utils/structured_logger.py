@@ -485,6 +485,8 @@ class StructuredLoggerManager:
         # Console handler
         console_stream = sys.stdout if console_output == "stdout" else sys.stderr
         console_handler = logging.StreamHandler(console_stream)
+        if hasattr(console_handler.stream, "reconfigure"):
+            console_handler.stream.reconfigure(encoding="utf-8", errors="replace")
 
         if log_format == "json":
             console_formatter = EnhancedStructuredFormatter(

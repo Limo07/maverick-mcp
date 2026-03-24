@@ -91,11 +91,11 @@ def test_portfolio_risk_analysis():
             # If still error, try string conversion
             result = risk_adjusted_analysis("MSFT", "75")
             if "error" in result:
-                print(f"❌ Still has error: {result}")
+                print(f"[ERROR] Still has error: {result}")
                 return False
 
         print(
-            f"✅ Success! Current price: ${result.get('current_price')}, Risk level: {result.get('risk_level')}"
+            f"[OK] Success! Current price: ${result.get('current_price')}, Risk level: {result.get('risk_level')}"
         )
         print(
             f"   Position sizing: ${result.get('position_sizing', {}).get('suggested_position_size')}"
@@ -103,7 +103,7 @@ def test_portfolio_risk_analysis():
         print(f"   Strategy type: {result.get('analysis', {}).get('strategy_type')}")
         return True
     except Exception as e:
-        print(f"❌ Exception: {e}")
+        print(f"[ERROR] Exception: {e}")
         return False
 
 
@@ -121,16 +121,16 @@ def test_stock_info_external_api():
         request = GetStockInfoRequest(ticker="MSFT")
         result = get_stock_info(request)
         if "error" in result and "Invalid API key" in str(result.get("error")):
-            print(f"❌ Still failing on external API: {result}")
+            print(f"[ERROR] Still failing on external API: {result}")
             return False
         else:
-            print(f"✅ Success! Company: {result.get('company', {}).get('name')}")
+            print(f"[OK] Success! Company: {result.get('company', {}).get('name')}")
             print(
                 f"   Current price: ${result.get('market_data', {}).get('current_price')}"
             )
             return True
     except Exception as e:
-        print(f"❌ Exception: {e}")
+        print(f"[ERROR] Exception: {e}")
         return False
 
 
@@ -160,7 +160,7 @@ async def test_research_empty_results():
         # Check if the agent has search providers (indicates API keys were passed correctly)
         if hasattr(agent, "search_providers") and len(agent.search_providers) > 0:
             print(
-                f"✅ Research agent created with {len(agent.search_providers)} search providers!"
+                f"[OK] Research agent created with {len(agent.search_providers)} search providers!"
             )
 
             # Try to access the provider API keys to verify they're configured
@@ -171,17 +171,17 @@ async def test_research_empty_results():
 
             if providers_configured > 0:
                 print(
-                    f"✅ {providers_configured} search providers have API keys configured"
+                    f"[OK] {providers_configured} search providers have API keys configured"
                 )
                 return True
             else:
-                print("❌ Search providers missing API keys")
+                print("[ERROR] Search providers missing API keys")
                 return False
         else:
-            print("❌ Research agent has no search providers configured")
+            print("[ERROR] Research agent has no search providers configured")
             return False
     except Exception as e:
-        print(f"❌ Exception: {e}")
+        print(f"[ERROR] Exception: {e}")
         return False
 
 
@@ -205,16 +205,16 @@ def test_llm_configuration():
         # Test a simple query to ensure it works
         print("   Testing LLM query...")
         response = llm.invoke("What is 2+2?")
-        print(f"✅ LLM response: {response.content}")
+        print(f"[OK] LLM response: {response.content}")
         return True
     except Exception as e:
-        print(f"❌ LLM test failed: {e}")
+        print(f"[ERROR] LLM test failed: {e}")
         return False
 
 
 def main():
     """Run comprehensive test suite for MCP tool fixes."""
-    print("🚀 Testing MCP Tool Fixes")
+    print("[START] Testing MCP Tool Fixes")
     print("=" * 50)
 
     results = []
@@ -232,21 +232,21 @@ def main():
     results.append(test_llm_configuration())
 
     print("\n" + "=" * 50)
-    print("📊 Test Results Summary:")
-    print(f"✅ Passed: {sum(results)}/{len(results)}")
-    print(f"❌ Failed: {len(results) - sum(results)}/{len(results)}")
+    print("[METRICS] Test Results Summary:")
+    print(f"[OK] Passed: {sum(results)}/{len(results)}")
+    print(f"[ERROR] Failed: {len(results) - sum(results)}/{len(results)}")
 
     if all(results):
-        print("\n🎉 All MCP tool fixes are working correctly!")
+        print("\n[DONE] All MCP tool fixes are working correctly!")
         print("\nFixed Issues:")
-        print("1. ✅ Research tools return actual content (API keys properly passed)")
+        print("1. [OK] Research tools return actual content (API keys properly passed)")
         print(
-            "2. ✅ Portfolio risk analysis works (DataFrame validation & column case)"
+            "2. [OK] Portfolio risk analysis works (DataFrame validation & column case)"
         )
-        print("3. ✅ Stock info graceful fallback (external API optional)")
-        print("4. ✅ LLM configuration compatible (temperature & streaming)")
+        print("3. [OK] Stock info graceful fallback (external API optional)")
+        print("4. [OK] LLM configuration compatible (temperature & streaming)")
     else:
-        print("\n⚠️  Some issues remain to be fixed.")
+        print("\n[WARN]  Some issues remain to be fixed.")
         print("Please check the individual test results above.")
 
     return all(results)

@@ -6,8 +6,22 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-import vectorbt as vbt
 from pandas import DataFrame, Series
+
+
+class _LazyVbt:
+    """Lazy proxy for vectorbt to avoid slow JIT compilation at startup."""
+
+    _module = None
+
+    def __getattr__(self, name: str):
+        if _LazyVbt._module is None:
+            import vectorbt as _vbt_module  # noqa: PLC0415
+            _LazyVbt._module = _vbt_module
+        return getattr(_LazyVbt._module, name)
+
+
+vbt = _LazyVbt()
 
 from maverick_mcp.backtesting.batch_processing import BatchProcessingMixin
 from maverick_mcp.data.cache import (

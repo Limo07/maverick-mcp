@@ -243,7 +243,7 @@ class FastMCPProtocol(Protocol):
     def run(self, *args: Any, **kwargs: Any) -> None: ...
 
 
-_use_stderr = "--transport" in sys.argv and "stdio" in sys.argv
+_use_stderr = "--transport" in sys.argv and ("stdio" in sys.argv or "streamable-http" in sys.argv)
 
 # Setup enhanced structured logging for backtesting
 setup_backtesting_logging(
@@ -319,7 +319,7 @@ try:
     from maverick_mcp.monitoring.metrics import get_backtesting_metrics
 
     backtesting_collector = get_backtesting_metrics()
-    logger.info("✅ Backtesting metrics system initialized successfully")
+    logger.info("[OK] Backtesting metrics system initialized successfully")
 
     logger.info("Enhanced Backtesting Metrics System Enabled")
     logger.info("  Strategy performance tracking active")
@@ -538,17 +538,17 @@ try:
     # Initialize circuit breakers for all external APIs
     circuit_breaker_success = initialize_all_circuit_breakers()
     if circuit_breaker_success:
-        logger.info("✅ Circuit breakers initialized for all external APIs")
+        logger.info("[OK] Circuit breakers initialized for all external APIs")
         logger.info("Enhanced Circuit Breaker Protection Enabled")
         logger.info("  yfinance, Tiingo, FRED, OpenRouter, Exa APIs protected")
         logger.info("  Failure detection and automatic recovery active")
         logger.info("  Circuit breaker monitoring and alerting enabled")
     else:
-        logger.warning("⚠️  Some circuit breakers failed to initialize")
+        logger.warning("[WARN] Some circuit breakers failed to initialize")
 
     # Get health monitor (will be started later in async context)
     health_monitor = get_health_monitor()
-    logger.info("✅ Health monitoring system prepared")
+    logger.info("[OK] Health monitoring system prepared")
 
     logger.info("Comprehensive Health Monitoring System Ready")
     logger.info("  Real-time component health tracking")
@@ -1515,7 +1515,7 @@ if __name__ == "__main__":
             from maverick_mcp.monitoring.health_monitor import start_health_monitoring
 
             await start_health_monitoring()
-            logger.info("✅ Background health monitoring started")
+            logger.info("[OK] Background health monitoring started")
         except Exception as e:
             logger.error(f"Failed to start health monitoring: {e}")
 

@@ -1955,14 +1955,14 @@ class DeepResearchAgent(PersonaAwareAgent):
         )
 
         orchestration_logger.info(
-            "🔍 RESEARCH_START",
+            "[SEARCH] RESEARCH_START",
             execution_mode="parallel" if use_parallel else "sequential",
             focus_areas=focus_areas[:3] if focus_areas else None,
             timeframe=timeframe,
         )
 
         if use_parallel:
-            orchestration_logger.info("🚀 PARALLEL_EXECUTION_SELECTED")
+            orchestration_logger.info("[START] PARALLEL_EXECUTION_SELECTED")
             try:
                 result = await self._execute_parallel_research(
                     topic=topic,
@@ -1974,18 +1974,18 @@ class DeepResearchAgent(PersonaAwareAgent):
                     start_time=start_time,
                     **kwargs,
                 )
-                orchestration_logger.info("✅ PARALLEL_EXECUTION_SUCCESS")
+                orchestration_logger.info("[OK] PARALLEL_EXECUTION_SUCCESS")
                 return result
             except Exception as e:
                 orchestration_logger.warning(
-                    "⚠️ PARALLEL_FALLBACK_TRIGGERED",
+                    "[WARN] PARALLEL_FALLBACK_TRIGGERED",
                     error=str(e),
                     fallback_mode="sequential",
                 )
                 # Fall through to sequential execution
 
         # Execute research workflow (sequential)
-        orchestration_logger.info("🔄 SEQUENTIAL_EXECUTION_START")
+        orchestration_logger.info("[PARALLEL] SEQUENTIAL_EXECUTION_START")
         try:
             result = await self.graph.ainvoke(
                 initial_state,
@@ -2693,19 +2693,19 @@ class DeepResearchAgent(PersonaAwareAgent):
 
         try:
             # Generate research tasks using task distributor
-            orchestration_logger.info("🎯 TASK_DISTRIBUTION_START")
+            orchestration_logger.info("[DONE] TASK_DISTRIBUTION_START")
             research_tasks = self.task_distributor.distribute_research_tasks(
                 topic=topic, session_id=session_id, focus_areas=focus_areas
             )
 
             orchestration_logger.info(
-                "📋 TASKS_GENERATED",
+                "[LIST] TASKS_GENERATED",
                 task_count=len(research_tasks),
                 task_types=[t.task_type for t in research_tasks],
             )
 
             # Execute tasks in parallel
-            orchestration_logger.info("🚀 PARALLEL_ORCHESTRATION_START")
+            orchestration_logger.info("[START] PARALLEL_ORCHESTRATION_START")
             research_result = (
                 await self.parallel_orchestrator.execute_parallel_research(
                     tasks=research_tasks,
@@ -2728,7 +2728,7 @@ class DeepResearchAgent(PersonaAwareAgent):
             )
 
             # Convert parallel results to expected format
-            orchestration_logger.info("🔄 RESULT_FORMATTING_START")
+            orchestration_logger.info("[PARALLEL] RESULT_FORMATTING_START")
             formatted_result = await self._format_parallel_research_response(
                 research_result=research_result,
                 topic=topic,
@@ -2739,7 +2739,7 @@ class DeepResearchAgent(PersonaAwareAgent):
             )
 
             orchestration_logger.info(
-                "✅ PARALLEL_RESEARCH_COMPLETE",
+                "[OK] PARALLEL_RESEARCH_COMPLETE",
                 result_confidence=formatted_result.get("confidence_score", 0.0),
                 sources_analyzed=formatted_result.get("sources_analyzed", 0),
             )
@@ -2747,7 +2747,7 @@ class DeepResearchAgent(PersonaAwareAgent):
             return formatted_result
 
         except Exception as e:
-            orchestration_logger.error("❌ PARALLEL_RESEARCH_FAILED", error=str(e))
+            orchestration_logger.error("[ERROR] PARALLEL_RESEARCH_FAILED", error=str(e))
             raise  # Re-raise to trigger fallback to sequential
 
     async def _execute_subagent_task(
@@ -2766,7 +2766,7 @@ class DeepResearchAgent(PersonaAwareAgent):
             task.task_type, task.task_id, task.focus_areas
         ) as agent_logger:
             agent_logger.info(
-                "🎯 SUBAGENT_ROUTING",
+                "[DONE] SUBAGENT_ROUTING",
                 target_topic=task.target_topic[:50],
                 focus_count=len(task.focus_areas),
                 priority=task.priority,
@@ -2787,7 +2787,7 @@ class DeepResearchAgent(PersonaAwareAgent):
                 return await subagent.execute_research(task)
             else:
                 # Default to fundamental analysis
-                agent_logger.warning("⚠️ UNKNOWN_TASK_TYPE", fallback="fundamental")
+                agent_logger.warning("[WARN] UNKNOWN_TASK_TYPE", fallback="fundamental")
                 subagent = FundamentalResearchAgent(self)
                 return await subagent.execute_research(task)
 
@@ -2820,14 +2820,14 @@ class DeepResearchAgent(PersonaAwareAgent):
         }
 
         synthesis_logger.info(
-            "📊 SYNTHESIS_INPUT_ANALYSIS",
+            "[METRICS] SYNTHESIS_INPUT_ANALYSIS",
             total_tasks=len(task_results),
             successful_tasks=len(successful_results),
             failed_tasks=len(task_results) - len(successful_results),
         )
 
         if not successful_results:
-            synthesis_logger.warning("⚠️ NO_SUCCESSFUL_RESULTS")
+            synthesis_logger.warning("[WARN] NO_SUCCESSFUL_RESULTS")
             return {
                 "synthesis": "No research results available for synthesis",
                 "confidence_score": 0.0,
@@ -2844,7 +2844,7 @@ class DeepResearchAgent(PersonaAwareAgent):
             if task.status == "completed" and task.result:
                 task_type = task_id.split("_")[-1] if "_" in task_id else "unknown"
                 synthesis_logger.debug(
-                    "🔍 PROCESSING_TASK_RESULT",
+                    "[SEARCH] PROCESSING_TASK_RESULT",
                     task_id=task_id,
                     task_type=task_type,
                     has_insights="insights" in task.result
@@ -2899,10 +2899,10 @@ class DeepResearchAgent(PersonaAwareAgent):
             synthesis_text = ContentAnalyzer._coerce_message_content(
                 synthesis_response.content
             )
-            synthesis_logger.info("🧠 LLM_SYNTHESIS_SUCCESS")
+            synthesis_logger.info("[SYNTHESIS] LLM_SYNTHESIS_SUCCESS")
         except Exception as e:
             synthesis_logger.warning(
-                "⚠️ LLM_SYNTHESIS_FAILED", error=str(e), fallback="text_fallback"
+                "[WARN] LLM_SYNTHESIS_FAILED", error=str(e), fallback="text_fallback"
             )
             synthesis_text = self._generate_fallback_synthesis(
                 all_insights, overall_sentiment
@@ -2936,7 +2936,7 @@ class DeepResearchAgent(PersonaAwareAgent):
         }
 
         synthesis_logger.info(
-            "✅ SYNTHESIS_COMPLETE",
+            "[OK] SYNTHESIS_COMPLETE",
             insights_count=len(all_insights),
             overall_confidence=average_credibility,
             sentiment_direction=synthesis_result["overall_sentiment"]["direction"],

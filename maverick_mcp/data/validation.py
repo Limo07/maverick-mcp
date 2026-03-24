@@ -514,13 +514,13 @@ class DataValidator:
         lines = []
 
         # Header
-        status = "✅ PASSED" if validation_results.get("passed", False) else "❌ FAILED"
+        status = "[OK] PASSED" if validation_results.get("passed", False) else "[ERROR] FAILED"
         lines.append(f"=== Data Validation Report - {status} ===")
         lines.append("")
 
         # Metrics
         if "metrics" in validation_results:
-            lines.append("📊 Metrics:")
+            lines.append("[METRICS] Metrics:")
             for key, value in validation_results["metrics"].items():
                 if isinstance(value, float) and 0 < value < 1:
                     lines.append(f"  • {key}: {value:.2%}")
@@ -530,14 +530,14 @@ class DataValidator:
 
         # Errors
         if validation_results.get("errors"):
-            lines.append("❌ Errors:")
+            lines.append("[ERROR] Errors:")
             for error in validation_results["errors"]:
                 lines.append(f"  • {error}")
             lines.append("")
 
         # Warnings
         if include_warnings and validation_results.get("warnings"):
-            lines.append("⚠️ Warnings:")
+            lines.append("[WARN] Warnings:")
             for warning in validation_results["warnings"]:
                 lines.append(f"  • {warning}")
             lines.append("")
@@ -550,7 +550,7 @@ class DataValidator:
                 if not result.get("passed", True)
             ]
             if failed_symbols:
-                lines.append(f"🔍 Failed Symbols ({len(failed_symbols)}):")
+                lines.append(f"[SEARCH] Failed Symbols ({len(failed_symbols)}):")
                 for symbol in failed_symbols:
                     result = validation_results["symbol_results"][symbol]
                     error = result.get("error", "Unknown error")

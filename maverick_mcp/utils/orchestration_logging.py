@@ -73,7 +73,7 @@ class OrchestrationLogger:
         extra_info = " | ".join(f"{k}:{v}" for k, v in kwargs.items() if v is not None)
         extra_str = f" | {extra_info}" if extra_info else ""
 
-        return f"{color}🔧 {self.component_name}{LogColors.ENDC} {context_str}: {message}{extra_str}"
+        return f"{color}[TOOL] {self.component_name}{LogColors.ENDC} {context_str}: {message}{extra_str}"
 
     def debug(self, message: str, **kwargs):
         """Log debug message with context."""
@@ -137,7 +137,7 @@ def log_method_call(
                 if safe_kwargs:
                     params_str = f" | params: {safe_kwargs}"
 
-            logger.info(f"🚀 START {func.__name__}{params_str}")
+            logger.info(f"[START] START {func.__name__}{params_str}")
 
             start_time = time.time()
             try:
@@ -160,14 +160,14 @@ def log_method_call(
                         stats = result["parallel_execution_stats"]
                         result_summary += f" | tasks: {stats.get('successful_tasks', 0)}/{stats.get('total_tasks', 0)}"
 
-                logger.info(f"✅ SUCCESS {func.__name__}{timing_str}{result_summary}")
+                logger.info(f"[OK] SUCCESS {func.__name__}{timing_str}{result_summary}")
                 return result
 
             except Exception as e:
                 # Log error
                 duration = time.time() - start_time
                 timing_str = f" | duration:{duration:.3f}s" if include_timing else ""
-                logger.error(f"❌ ERROR {func.__name__}{timing_str} | error: {str(e)}")
+                logger.error(f"[ERROR] ERROR {func.__name__}{timing_str} | error: {str(e)}")
                 raise
 
         @functools.wraps(func)
@@ -188,7 +188,7 @@ def log_method_call(
                 if safe_kwargs:
                     params_str = f" | params: {safe_kwargs}"
 
-            logger.info(f"🚀 START {func.__name__}{params_str}")
+            logger.info(f"[START] START {func.__name__}{params_str}")
 
             start_time = time.time()
             try:
@@ -209,13 +209,13 @@ def log_method_call(
                         stats = result["parallel_execution_stats"]
                         result_summary += f" | tasks: {stats.get('successful_tasks', 0)}/{stats.get('total_tasks', 0)}"
 
-                logger.info(f"✅ SUCCESS {func.__name__}{timing_str}{result_summary}")
+                logger.info(f"[OK] SUCCESS {func.__name__}{timing_str}{result_summary}")
                 return result
 
             except Exception as e:
                 duration = time.time() - start_time
                 timing_str = f" | duration:{duration:.3f}s" if include_timing else ""
-                logger.error(f"❌ ERROR {func.__name__}{timing_str} | error: {str(e)}")
+                logger.error(f"[ERROR] ERROR {func.__name__}{timing_str} | error: {str(e)}")
                 raise
 
         # Return appropriate wrapper based on function type
@@ -232,7 +232,7 @@ def log_parallel_execution(component: str, task_description: str, task_count: in
     """Context manager for logging parallel execution blocks."""
     logger = get_orchestration_logger(component)
 
-    logger.info(f"🔄 PARALLEL_START {task_description} | tasks: {task_count}")
+    logger.info(f"[PARALLEL] PARALLEL_START {task_description} | tasks: {task_count}")
     start_time = time.time()
 
     try:
@@ -240,13 +240,13 @@ def log_parallel_execution(component: str, task_description: str, task_count: in
 
         duration = time.time() - start_time
         logger.info(
-            f"🎯 PARALLEL_SUCCESS {task_description} | duration: {duration:.3f}s | tasks: {task_count}"
+            f"[DONE] PARALLEL_SUCCESS {task_description} | duration: {duration:.3f}s | tasks: {task_count}"
         )
 
     except Exception as e:
         duration = time.time() - start_time
         logger.error(
-            f"💥 PARALLEL_ERROR {task_description} | duration: {duration:.3f}s | error: {str(e)}"
+            f"[CRASH] PARALLEL_ERROR {task_description} | duration: {duration:.3f}s | error: {str(e)}"
         )
         raise
 
@@ -259,7 +259,7 @@ def log_agent_execution(
     logger = get_orchestration_logger(f"{agent_type}Agent")
 
     focus_str = f" | focus: {focus_areas}" if focus_areas else ""
-    logger.info(f"🤖 AGENT_START {task_id}{focus_str}")
+    logger.info(f"[AGENT] AGENT_START {task_id}{focus_str}")
 
     start_time = time.time()
 
@@ -267,12 +267,12 @@ def log_agent_execution(
         yield logger
 
         duration = time.time() - start_time
-        logger.info(f"🎉 AGENT_SUCCESS {task_id} | duration: {duration:.3f}s")
+        logger.info(f"[DONE] AGENT_SUCCESS {task_id} | duration: {duration:.3f}s")
 
     except Exception as e:
         duration = time.time() - start_time
         logger.error(
-            f"🔥 AGENT_ERROR {task_id} | duration: {duration:.3f}s | error: {str(e)}"
+            f"[ERROR] AGENT_ERROR {task_id} | duration: {duration:.3f}s | error: {str(e)}"
         )
         raise
 
@@ -290,7 +290,7 @@ def log_tool_invocation(tool_name: str, request_data: dict[str, Any] | None = No
         if "persona" in request_data:
             request_summary += f" | persona: {request_data['persona']}"
 
-    logger.info(f"🔧 TOOL_INVOKE {tool_name}{request_summary}")
+    logger.info(f"[TOOL] TOOL_INVOKE {tool_name}{request_summary}")
 
 
 def log_synthesis_operation(
@@ -300,13 +300,13 @@ def log_synthesis_operation(
     logger = get_orchestration_logger("ResultSynthesis")
 
     summary_str = f" | output: {output_summary}" if output_summary else ""
-    logger.info(f"🧠 SYNTHESIS {operation} | inputs: {input_count}{summary_str}")
+    logger.info(f"[SYNTHESIS] SYNTHESIS {operation} | inputs: {input_count}{summary_str}")
 
 
 def log_fallback_trigger(component: str, reason: str, fallback_action: str):
     """Log when fallback mechanisms are triggered."""
     logger = get_orchestration_logger(component)
-    logger.warning(f"⚠️ FALLBACK_TRIGGER {reason} | action: {fallback_action}")
+    logger.warning(f"[WARN] FALLBACK_TRIGGER {reason} | action: {fallback_action}")
 
 
 def log_performance_metrics(component: str, metrics: dict[str, Any]):
@@ -314,7 +314,7 @@ def log_performance_metrics(component: str, metrics: dict[str, Any]):
     logger = get_orchestration_logger(component)
 
     metrics_str = " | ".join(f"{k}: {v}" for k, v in metrics.items())
-    logger.info(f"📊 PERFORMANCE_METRICS | {metrics_str}")
+    logger.info(f"[METRICS] PERFORMANCE_METRICS | {metrics_str}")
 
 
 def log_resource_usage(
@@ -336,7 +336,7 @@ def log_resource_usage(
 
     if usage_parts:
         usage_str = " | ".join(usage_parts)
-        logger.info(f"📈 RESOURCE_USAGE | {usage_str}")
+        logger.info(f"[STATS] RESOURCE_USAGE | {usage_str}")
 
 
 # Export key functions

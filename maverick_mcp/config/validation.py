@@ -240,7 +240,7 @@ class EnvironmentValidator:
                 f"Environment validation found {len(self.warnings)} warnings:"
             )
             for warning in self.warnings:
-                logger.warning(f"  ⚠ {warning}")
+                logger.warning(f"  [WARN] {warning}")
 
         if not self.errors and not self.warnings:
             logger.info("✓ Environment validation passed successfully")

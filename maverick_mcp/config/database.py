@@ -739,9 +739,9 @@ from maverick_mcp.config.database import validate_production_config
 
 try:
     validate_production_config(pool_config)
-    print("✅ Configuration is production-ready")
+    print("[OK] Configuration is production-ready")
 except ValueError as e:
-    print(f"❌ Configuration issues: {e}")
+    print(f"[ERROR] Configuration issues: {e}")
 ```
 
 ### Monitoring Integration

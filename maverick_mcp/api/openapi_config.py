@@ -37,15 +37,15 @@ entirely without billing, subscription tracking, or usage credits.
 
 ## Highlights
 
-- 📊 **Historical & Intraday Market Data** — request equities data across
+- [METRICS] **Historical & Intraday Market Data** — request equities data across
   flexible ranges with caching for fast iteration.
-- 📈 **Advanced Technical Analysis** — generate RSI, MACD, Bollinger Bands, and
+- [STATS] **Advanced Technical Analysis** — generate RSI, MACD, Bollinger Bands, and
   other indicator overlays for deeper insight.
 - 🧪 **Backtesting & Scenario Tools** — evaluate trading ideas with the
   VectorBT-powered engine and inspect saved results locally.
-- 🧠 **Research Agents & Screeners** — launch summarization and screening tools
+- [SYNTHESIS] **Research Agents & Screeners** — launch summarization and screening tools
   that operate with zero payment integration.
-- 🛡️ **Secure Defaults** — observability hooks, CSP headers, and rate limiting
+- **Secure Defaults** — observability hooks, CSP headers, and rate limiting
   are enabled without requiring extra configuration.
 
 ## Access Model

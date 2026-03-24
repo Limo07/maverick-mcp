@@ -37,19 +37,19 @@ def test_mcp_tool_fixes_validation():
 
     # Verify expected success messages are in output
     output = result.stdout
-    assert "🎉 All MCP tool fixes are working correctly!" in output, (
+    assert "[DONE] All MCP tool fixes are working correctly!" in output, (
         "Expected success message not found"
     )
-    assert "✅ Passed: 4/4" in output, "Expected 4/4 tests to pass"
-    assert "❌ Failed: 0/4" in output, "Expected 0/4 tests to fail"
+    assert "[OK] Passed: 4/4" in output, "Expected 4/4 tests to pass"
+    assert "[ERROR] Failed: 0/4" in output, "Expected 0/4 tests to fail"
 
     # Verify individual fixes
-    assert "✅ Research tools return actual content" in output, (
+    assert "[OK] Research tools return actual content" in output, (
         "Research fix not validated"
     )
-    assert "✅ Portfolio risk analysis works" in output, "Portfolio fix not validated"
-    assert "✅ Stock info graceful fallback" in output, "Stock info fix not validated"
-    assert "✅ LLM configuration compatible" in output, "LLM fix not validated"
+    assert "[OK] Portfolio risk analysis works" in output, "Portfolio fix not validated"
+    assert "[OK] Stock info graceful fallback" in output, "Stock info fix not validated"
+    assert "[OK] LLM configuration compatible" in output, "LLM fix not validated"
 
 
 if __name__ == "__main__":

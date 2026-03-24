@@ -421,14 +421,14 @@ class OptimizedDeepResearchAgent(DeepResearchAgent):
         )
 
         orchestration_logger.info(
-            "🚀 OPTIMIZED_RESEARCH_START",
+            "[START] OPTIMIZED_RESEARCH_START",
             depth=depth,
             focus_areas=focus_areas,
         )
 
         try:
             # Phase 1: Search and Content Filtering
-            orchestration_logger.info("📋 PHASE_1_SEARCH_START")
+            orchestration_logger.info("[LIST] PHASE_1_SEARCH_START")
             search_time_budget = min(
                 time_budget_seconds * 0.2, 30
             )  # 20% of budget, max 30s
@@ -438,7 +438,7 @@ class OptimizedDeepResearchAgent(DeepResearchAgent):
             )
 
             orchestration_logger.info(
-                "✅ PHASE_1_COMPLETE",
+                "[OK] PHASE_1_COMPLETE",
                 sources_found=len(search_results.get("filtered_sources", [])),
             )
 
@@ -446,7 +446,7 @@ class OptimizedDeepResearchAgent(DeepResearchAgent):
             remaining_time = time_budget_seconds - (time.time() - start_time)
             if remaining_time < 10:
                 orchestration_logger.warning(
-                    "⚠️ TIME_CONSTRAINT_CRITICAL", remaining=f"{remaining_time:.1f}s"
+                    "[WARN] TIME_CONSTRAINT_CRITICAL", remaining=f"{remaining_time:.1f}s"
                 )
                 return self._create_emergency_response(
                     topic, search_results, start_time
@@ -463,7 +463,7 @@ class OptimizedDeepResearchAgent(DeepResearchAgent):
             )
 
             orchestration_logger.info(
-                "✅ PHASE_2_COMPLETE",
+                "[OK] PHASE_2_COMPLETE",
                 sources_analyzed=len(analysis_results["analyzed_sources"]),
                 confidence=f"{analysis_results['final_confidence']:.2f}",
             )
@@ -476,11 +476,11 @@ class OptimizedDeepResearchAgent(DeepResearchAgent):
                     "synthesis": "Time constraints prevented full synthesis"
                 }
             else:
-                orchestration_logger.info("🧠 PHASE_3_SYNTHESIS_START")
+                orchestration_logger.info("[SYNTHESIS] PHASE_3_SYNTHESIS_START")
                 synthesis_results = await self._optimized_synthesis_phase(
                     analysis_results["analyzed_sources"], topic, remaining_time
                 )
-                orchestration_logger.info("✅ PHASE_3_COMPLETE")
+                orchestration_logger.info("[OK] PHASE_3_COMPLETE")
 
             # Compile final results
             execution_time = time.time() - start_time
@@ -510,7 +510,7 @@ class OptimizedDeepResearchAgent(DeepResearchAgent):
             )
 
             orchestration_logger.info(
-                "🎉 OPTIMIZED_RESEARCH_COMPLETE",
+                "[DONE] OPTIMIZED_RESEARCH_COMPLETE",
                 duration=f"{execution_time:.2f}s",
                 confidence=f"{analysis_results['final_confidence']:.2f}",
             )
@@ -520,7 +520,7 @@ class OptimizedDeepResearchAgent(DeepResearchAgent):
         except Exception as e:
             execution_time = time.time() - start_time
             orchestration_logger.error(
-                "💥 OPTIMIZED_RESEARCH_FAILED",
+                "[CRASH] OPTIMIZED_RESEARCH_FAILED",
                 error=str(e),
                 execution_time=f"{execution_time:.2f}s",
             )

@@ -173,14 +173,14 @@ def log_security_status() -> None:
     logger.info(f"Trusted Hosts: {config.trusted_hosts.allowed_hosts}")
 
     if validation["valid"]:
-        logger.info("✅ Security validation: PASSED")
+        logger.info("[OK] Security validation: PASSED")
     else:
-        logger.error("❌ Security validation: FAILED")
+        logger.error("[ERROR] Security validation: FAILED")
         for issue in validation["issues"]:
             logger.error(f"  - {issue}")
 
     if validation["warnings"]:
-        logger.warning("⚠️  Security warnings:")
+        logger.warning("[WARN]  Security warnings:")
         for warning in validation["warnings"]:
             logger.warning(f"  - {warning}")
 

@@ -98,7 +98,7 @@ class ParallelResearchOrchestrator:
 
         # Log initialization
         self.orchestration_logger.info(
-            "🎛️ ORCHESTRATOR_INIT",
+            "[CONFIG] ORCHESTRATOR_INIT",
             max_agents=self.config.max_concurrent_agents,
         )
 
@@ -127,7 +127,7 @@ class ParallelResearchOrchestrator:
 
         # Log task overview
         self.orchestration_logger.info(
-            "📋 TASK_OVERVIEW",
+            "[LIST] TASK_OVERVIEW",
             task_count=len(tasks),
             max_concurrent=self.config.max_concurrent_agents,
         )
@@ -144,12 +144,12 @@ class ParallelResearchOrchestrator:
                 # Prepare tasks for execution
                 prepared_tasks = await self._prepare_tasks(tasks)
                 exec_logger.info(
-                    "🔧 TASKS_PREPARED", prepared_count=len(prepared_tasks)
+                    "[TOOL] TASKS_PREPARED", prepared_count=len(prepared_tasks)
                 )
 
                 # OPTIMIZATION: Use create_task for true parallel execution
                 # This allows tasks to start immediately without waiting
-                exec_logger.info("🚀 PARALLEL_EXECUTION_START")
+                exec_logger.info("[START] PARALLEL_EXECUTION_START")
 
                 # Create all tasks immediately for maximum parallelism
                 running_tasks = []
@@ -179,7 +179,7 @@ class ParallelResearchOrchestrator:
                         # Handle exceptions without blocking other tasks
                         completed_tasks.append(e)
 
-                exec_logger.info("🏁 PARALLEL_EXECUTION_COMPLETE")
+                exec_logger.info("[DONE] PARALLEL_EXECUTION_COMPLETE")
 
                 # Process results
                 result = await self._process_task_results(
@@ -200,24 +200,24 @@ class ParallelResearchOrchestrator:
 
                 # Synthesize results if callback provided
                 if synthesis_callback and result.successful_tasks > 0:
-                    exec_logger.info("🧠 SYNTHESIS_START")
+                    exec_logger.info("[SYNTHESIS] SYNTHESIS_START")
                     try:
                         synthesis_start = time.time()
                         result.synthesis = await synthesis_callback(result.task_results)
                         _ = (
                             time.time() - synthesis_start
                         )  # Track duration but not used currently
-                        exec_logger.info("✅ SYNTHESIS_SUCCESS")
+                        exec_logger.info("[OK] SYNTHESIS_SUCCESS")
                     except Exception as e:
-                        exec_logger.error("❌ SYNTHESIS_FAILED", error=str(e))
+                        exec_logger.error("[ERROR] SYNTHESIS_FAILED", error=str(e))
                         result.synthesis = {"error": f"Synthesis failed: {str(e)}"}
                 else:
-                    exec_logger.info("⏭️ SYNTHESIS_SKIPPED")
+                    exec_logger.info("[SKIP] SYNTHESIS_SKIPPED")
 
                 return result
 
             except Exception as e:
-                exec_logger.error("💥 PARALLEL_EXECUTION_FAILED", error=str(e))
+                exec_logger.error("[CRASH] PARALLEL_EXECUTION_FAILED", error=str(e))
                 result.total_execution_time = time.time() - start_time
                 return result
 
@@ -264,7 +264,7 @@ class ParallelResearchOrchestrator:
             ) as agent_logger:
                 try:
                     agent_logger.info(
-                        "🎯 TASK_EXECUTION_START",
+                        "[DONE] TASK_EXECUTION_START",
                         timeout=task.timeout,
                         priority=task.priority,
                     )
@@ -281,7 +281,7 @@ class ParallelResearchOrchestrator:
                     # Log successful completion
                     execution_time = task.end_time - task.start_time
                     agent_logger.info(
-                        "✨ TASK_EXECUTION_SUCCESS",
+                        "[NEW] TASK_EXECUTION_SUCCESS",
                         duration=f"{execution_time:.3f}s",
                     )
 
@@ -298,12 +298,12 @@ class ParallelResearchOrchestrator:
                 except TimeoutError:
                     task.error = f"Task timeout after {task.timeout}s"
                     task.status = "failed"
-                    agent_logger.error("⏰ TASK_TIMEOUT", timeout=task.timeout)
+                    agent_logger.error("[TIMEOUT] TASK_TIMEOUT", timeout=task.timeout)
 
                 except Exception as e:
                     task.error = str(e)
                     task.status = "failed"
-                    agent_logger.error("💥 TASK_EXECUTION_FAILED", error=str(e))
+                    agent_logger.error("[CRASH] TASK_EXECUTION_FAILED", error=str(e))
 
                 finally:
                     task.end_time = time.time()
@@ -425,7 +425,7 @@ class TaskDistributionEngine:
         distribution_logger.set_request_context(session_id=session_id)
 
         distribution_logger.info(
-            "🎯 TASK_DISTRIBUTION_START",
+            "[DONE] TASK_DISTRIBUTION_START",
             session_id=session_id,
         )
 
@@ -436,7 +436,7 @@ class TaskDistributionEngine:
         relevant_types = self._analyze_topic_relevance(topic_lower, focus_areas)
 
         # Log relevance analysis results
-        distribution_logger.info("🧠 RELEVANCE_ANALYSIS")
+        distribution_logger.info("[SYNTHESIS] RELEVANCE_ANALYSIS")
 
         # Create tasks for relevant types
         created_tasks = []
@@ -462,14 +462,14 @@ class TaskDistributionEngine:
         # Log created tasks
         if created_tasks:
             distribution_logger.info(
-                "✅ TASKS_CREATED",
+                "[OK] TASKS_CREATED",
                 task_count=len(created_tasks),
             )
 
         # Ensure at least one task (fallback to fundamental analysis)
         if not tasks:
             distribution_logger.warning(
-                "⚠️ NO_RELEVANT_TASKS_FOUND - using fallback",
+                "[WARN] NO_RELEVANT_TASKS_FOUND - using fallback",
                 threshold=0.3,
                 max_score=max(relevant_types.values()) if relevant_types else 0,
             )
@@ -484,7 +484,7 @@ class TaskDistributionEngine:
             tasks.append(fallback_task)
 
             distribution_logger.info(
-                "🔄 FALLBACK_TASK_CREATED", task_type="fundamental"
+                "[PARALLEL] FALLBACK_TASK_CREATED", task_type="fundamental"
             )
 
         # Final summary
@@ -494,7 +494,7 @@ class TaskDistributionEngine:
             "avg_priority": sum(t.priority for t in tasks) / len(tasks) if tasks else 0,
         }
 
-        distribution_logger.info("🎉 TASK_DISTRIBUTION_COMPLETE", **task_summary)
+        distribution_logger.info("[DONE] TASK_DISTRIBUTION_COMPLETE", **task_summary)
 
         return tasks
 

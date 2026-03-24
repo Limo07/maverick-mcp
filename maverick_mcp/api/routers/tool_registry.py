@@ -88,7 +88,7 @@ TOOL_CATEGORY_CONFIGS: dict[ToolCategory, ToolConfig] = {
     ),
     ToolCategory.TECHNICAL: ToolConfig(
         category=ToolCategory.TECHNICAL,
-        timeout_seconds=20.0,
+        timeout_seconds=60.0,
         max_calls_per_minute=15,
         max_calls_per_hour=300,
         description="Technical analysis tools",
